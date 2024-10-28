@@ -1,13 +1,13 @@
-import Conversation from "../Models/conversationModel";
+import Conversation from "../Models/conversationModel.js";
 import Message from "../Models/messageModel.js";
 
 export const sendMessage = async (req, res) => {
   try {
-    const { message } = req.body;
+    const { messages } = req.body;
     const { id: receiverId } = req.params;
     const senderId = req.user._id;
     let chats = await Conversation.findOne({
-      participants: { $all: [sendId, receiverId] },
+      participants: { $all: [senderId, receiverId] },
     });
     if (!chats) {
       chats = await Conversation.create({
@@ -18,12 +18,12 @@ export const sendMessage = async (req, res) => {
     const newMessages = new Message({
       senderId,
       receiverId,
-      message,
+      message: messages,
       conversationId: chats._id,
     });
 
     if (newMessages) {
-      chats.message.push(newMessages._id);
+      chats.messages.push(newMessages._id);
     }
 
     // TODO SOCKET.IO FUNCTION
@@ -36,6 +36,7 @@ export const sendMessage = async (req, res) => {
       success: false,
       message: error,
     });
+    console.log(`error in sendMessage ${error}`);
   }
 };
 
