@@ -1,15 +1,40 @@
-import React from "react";
+import React, { useState } from "react";
 import FormField from "../components/FormField.jsx";
 import { Link } from "react-router-dom";
+import axios from "axios";
 
 const Register = () => {
+  const [userInput, setUserInput] = useState({});
+  const [loading, setLoading] = useState(false);
+
+  const handleInput = (e) => {
+    setUserInput({
+      ...userInput,
+      [e.target.id]: e.target.value,
+    });
+  };
+  console.log(userInput);
+  const handleSubmit = async () => {
+    setLoading(true);
+    try {
+      const login = await axios.post(`/api/auth/login`);
+    } catch (error) {
+      setLoading(false);
+      console.log(error);
+    }
+  };
   return (
     <div className=" bg-black flex flex-col p-4 rounded-lg items-center w-full max-w-md text-3xl backdrop-filter backdrop-blur-lg bg-opacity-50 ">
       <h1>Register</h1>
       <form onSubmit={handleSubmit}>
         <FormField id="name" label="Full name" type="text" />
         <FormField id="username" label="Username" type="Username" />
-        <FormField id="email" label="Email Address" type="Email" />
+        <FormField
+          id="email"
+          label="Email Address"
+          type="Email"
+          onChange={handleInput}
+        />
         <FormField id="password" label="Password" type="password" />
         <FormField
           id="passwordcheck"
