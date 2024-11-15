@@ -3,8 +3,10 @@ import FormField from "../components/FormField";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { UseAuth } from "../context/AuthContext.jsx";
 
 const Login = () => {
+  const { setAuthUser } = UseAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [userInput, setUserInput] = useState({});
@@ -15,7 +17,7 @@ const Login = () => {
       [e.target.id]: e.target.value,
     });
   };
-  console.log(userInput);
+  // console.log(userInput);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -25,10 +27,11 @@ const Login = () => {
       const data = login.data;
       if (data.success === false) {
         setLoading(false);
-        console.log(data.message);
+        toast.error(data.message);
       }
       toast.success(data.message);
       localStorage.setItem("chatapp", JSON.stringify(data));
+      setAuthUser(data);
       setLoading(false);
       navigate("/");
     } catch (error) {
