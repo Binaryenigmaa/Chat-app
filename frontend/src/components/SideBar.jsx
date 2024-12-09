@@ -6,8 +6,9 @@ import { UseAuth } from "../context/AuthContext.jsx";
 import { useNavigate } from "react-router-dom";
 import { IoArrowBackSharp } from "react-icons/io5";
 import { BiLogOut } from "react-icons/bi";
+import userConversation from "../store/useConversation.js";
 
-const SideBar = () => {
+const SideBar = ({ onSelectUser }) => {
   const navigate = useNavigate();
   const { authUser, setAuthUser } = UseAuth();
   const [searchInput, setSearchInput] = useState("");
@@ -15,6 +16,8 @@ const SideBar = () => {
   const [searchUser, setSearchUser] = useState([]);
   const [chatUser, setChatUser] = useState([]);
   const [selectedUserId, setSelectedUserId] = useState(null);
+  const { message, selectedConversation, setSelectedConversation } =
+    userConversation();
 
   useEffect(() => {
     const chatUserHandler = async () => {
@@ -58,6 +61,8 @@ const SideBar = () => {
     }
   };
   const handleUserClick = (user) => {
+    onSelectUser(user);
+    setSelectedConversation(user);
     setSelectedUserId(user._id);
   };
 
