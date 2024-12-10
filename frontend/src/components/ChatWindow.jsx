@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import userConversation from "../store/useConversation.js";
 import { UseAuth } from "../context/AuthContext";
 import { TiMessages } from "react-icons/ti";
-import { IoArrowBackSharp } from "react-icons/io5";
+import { IoArrowBackSharp, IoSend } from "react-icons/io5";
 import axios from "axios";
 
 const ChatWindow = ({ onBackUser }) => {
@@ -14,7 +14,34 @@ const ChatWindow = ({ onBackUser }) => {
   } = userConversation();
   const { authUser } = UseAuth();
   const [loading, setLoading] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [sendData, setSendData] = useState("");
   const lastMessageRef = useRef();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setSending(true);
+    try {
+      const res = await axios.post(
+        `/api/message/send/${selectedConversation?._id}`,
+        { messages: sendData }
+      );
+      const data = res.data;
+      if (data.success === false) {
+        setSending(false);
+        console.log(data.message);
+      }
+      setSending(false);
+      setMessage([...messages, data]);
+    } catch (error) {
+      setSending(false);
+      console.log(error);
+    }
+  };
+
+  const handleMessage = async (e) => {
+    setSendData(e.target.value);
+  };
 
   useEffect(() => {
     setTimeout(() => {
@@ -47,7 +74,7 @@ const ChatWindow = ({ onBackUser }) => {
   }, [selectedConversation?._id, setMessage]);
   console.log(messages);
   return (
-    <div className="md:min-w-[500px] h-screen flex flex-col py-2  ">
+    <div className="md:min-w-[500px] h-[99%] flex flex-col py-2  ">
       {selectedConversation === null ? (
         <div className="flex items-center justify-center w-full h-full">
           <div className="px-4 text-center text-2xl text-gray-950 font-semibold flex flex-col items-center gap-2">
@@ -120,6 +147,28 @@ const ChatWindow = ({ onBackUser }) => {
                 </div>
               ))}
           </div>
+          <form onSubmit={handleSubmit} className="rounded-full text-black ">
+            <div className="w-full rounded-full flex items-center bg-white ">
+              <input
+                onChange={handleMessage}
+                type="text"
+                value={sendData}
+                required
+                id="message"
+                className="w-full bg-transparent px-4 outline-none rounded-full "
+              />
+              <button type="submit">
+                {sending ? (
+                  <div className="loading loading-spinner "></div>
+                ) : (
+                  <IoSend
+                    size={25}
+                    className="text-sky-700 cursor-pointer rounded-full bg-gray-800 w-10 h-auto p1 "
+                  />
+                )}
+              </button>
+            </div>
+          </form>
         </>
       )}
     </div>
